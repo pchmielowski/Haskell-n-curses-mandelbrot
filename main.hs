@@ -27,7 +27,7 @@ data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 scaled n position zoom = ((fromIntegral (n - position)) / (fromIntegral zoom))
 
 isShaded :: Integer -> Integer -> Position -> Bool
-isShaded x y position = (color ((scaled x 0 (zoom position)) :+ (scaled y (posX position) (zoom position)))) >= max_iterations
+isShaded x y position = (color ((scaled x (posX position) (zoom position)) :+ (scaled y (posY position) (zoom position)))) >= max_iterations
 
 point :: Integer -> Integer -> Position -> Point
 point x y position = Point x y (isShaded x y position)
@@ -45,16 +45,17 @@ main = runCurses $ do
     w <- defaultWindow
     waitFor w
 
-data Position = Position { posX :: Integer, zoom :: Integer }
+data Position = Position { posX :: Integer, posY :: Integer, zoom :: Integer }
 
 changeScale position delta = position { zoom = (zoom position) + delta }
 scaleUp position = changeScale position 10
 scaleDown position = changeScale position (-10)
 
-toRight position = position { posX = (posX position) + 1 }
+toRight position = position { posY = (posY position) + 1 }
+toDown position = position { posX = (posX position) + 1 }
 
 waitFor :: Window -> Curses ()
-waitFor w = loop $ Position 0 50 where
+waitFor w = loop $ Position 0 0 50 where
     loop position = do
         updateWindow w $ do
             mapM_ drawPoint $ figure $ position
@@ -63,6 +64,7 @@ waitFor w = loop $ Position 0 50 where
         case ev of
             Nothing -> loop position
             Just (EventSpecialKey KeyRightArrow) -> loop $ toRight position 
+            Just (EventSpecialKey KeyDownArrow) -> loop $ toDown position 
             Just (EventCharacter '+') -> loop $ scaleUp position
             Just (EventCharacter '-') -> loop $ scaleDown position
             Just ev' -> if (ev' == EventCharacter 'q') then return () else loop position
