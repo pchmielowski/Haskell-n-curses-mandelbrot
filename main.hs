@@ -24,7 +24,12 @@ data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 scaled n position zoom = ((fromIntegral (n - position)) / (fromIntegral zoom))
 
 isShaded :: Integer -> Integer -> Position -> Bool
-isShaded x y position = (color $ (scaled x (posX position) $ zoom position) :+ (scaled y (posY position) $ zoom position)) >= max_iterations
+isShaded x y position = intensity >= max_iterations
+    where 
+        intensity = color $ real :+ imag
+        real = transform x posX
+        imag = transform y posY
+        transform n delta = (scaled n (delta position) $ zoom position)
 
 point :: Integer -> Integer -> Position -> Point
 point x y position = Point x y (isShaded x y position)
