@@ -46,16 +46,19 @@ main = runCurses $ do
     waitFor w
 
 data Position = Position { zoom :: Integer }
+changeScale position delta = position { zoom = (zoom position) + delta }
+scaleUp position = changeScale position 10
+scaleDown position = changeScale position (-10)
 
 waitFor :: Window -> Curses ()
-waitFor w = loop 50 where
-    loop zoom = do
+waitFor w = loop $ Position 50 where
+    loop position = do
         updateWindow w $ do
-            mapM_ drawPoint $ figure zoom
+            mapM_ drawPoint $ figure $ zoom position
         render
         ev <- getEvent w Nothing
         case ev of
-            Nothing -> loop zoom
-            Just (EventCharacter '+') -> loop $ zoom + 10
-            Just (EventCharacter '-') -> loop $ zoom - 10
-            Just ev' -> if (ev' == EventCharacter 'q') then return () else loop zoom
+            Nothing -> loop position
+            Just (EventCharacter '+') -> loop $ scaleUp position
+            Just (EventCharacter '-') -> loop $ scaleDown position
+            Just ev' -> if (ev' == EventCharacter 'q') then return () else loop position
