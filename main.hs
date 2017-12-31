@@ -24,10 +24,10 @@ points = map scale [-500..500]
 
 data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 
-scaled n position = ((fromIntegral (n + (posX position))) / (fromIntegral $ zoom position))
+scaled n position zoom = ((fromIntegral (n - position)) / (fromIntegral zoom))
 
 isShaded :: Integer -> Integer -> Position -> Bool
-isShaded x y position = (color ((scaled x position) :+ (scaled y position))) >= max_iterations
+isShaded x y position = (color ((scaled x 0 (zoom position)) :+ (scaled y (posX position) (zoom position)))) >= max_iterations
 
 point :: Integer -> Integer -> Position -> Point
 point x y position = Point x y (isShaded x y position)
