@@ -7,7 +7,7 @@ point x y = Point x y (x + y)
 
 figure = concat $ map (\x -> map (\y -> point x y) [0..100]) [0..50]
 
--- drawPoint :: Point -> ColorID -> Update ()
+drawPoint :: Point -> Update ()
 drawPoint p = do
     moveCursor (x p) (y p)
     drawString $ show $ color p
