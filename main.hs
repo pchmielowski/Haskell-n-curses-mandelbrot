@@ -60,11 +60,17 @@ toDown position = position { posX = (posX position) + positionDelta }
 toLeft position = position { posY = (posY position) - positionDelta }
 toUp position = position { posX = (posX position) - positionDelta }
 
+drawColorPoint :: Point -> Window -> Curses ()
+drawColorPoint point win = do 
+    color <- newColorID ColorRed ColorBlue 1    
+    updateWindow win $ do
+        setColor color
+        drawPoint point
+
 waitFor :: Window -> Curses ()
 waitFor w = loop $ Position 0 0 50 where
     loop position = do
-        updateWindow w $ do
-            mapM_ drawPoint $ figure $ position
+        mapM_ (\p -> drawColorPoint p w) $ figure $ position
         render
         ev <- getEvent w Nothing
         case ev of
