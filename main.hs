@@ -24,8 +24,10 @@ points = map scale [-500..500]
 
 data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 
+scaled n = ((fromIntegral n) / 50)
+
 isShaded :: Integer -> Integer -> Bool
-isShaded x y = (color (((fromIntegral x) / 100) :+ ((fromIntegral y) / 100))) >= max_iterations
+isShaded x y = (color ((scaled x) :+ (scaled y))) >= max_iterations
 
 point :: Integer -> Integer -> Point
 point x y = Point x y (isShaded x y)
