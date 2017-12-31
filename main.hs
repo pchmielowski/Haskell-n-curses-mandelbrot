@@ -19,9 +19,6 @@ color point = iteration (0 :+ 0) point 0
 scale :: Fractional a => a -> a
 scale n = n / 200
 
-points :: [Double]
-points = map scale [-500..500]
-
 data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 
 scaled n position zoom = ((fromIntegral (n - position)) / (fromIntegral zoom))
