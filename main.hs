@@ -61,10 +61,12 @@ toUp position = position { posX = (posX position) - positionDelta }
 
 drawColorPoint :: Point -> Window -> Curses ()
 drawColorPoint point win = do 
-    color <- newColorID ColorRed (Color $ fromIntegral $ shade point) (fromIntegral $ shade point) 
+    defineColor (Color $ fromIntegral $ shade point) colorIntensity colorIntensity colorIntensity
+    color <- newColorID ColorRed (Color $ fromIntegral $ shade point) (fromIntegral $ shade point)
     updateWindow win $ do
         setColor color
         drawPoint point
+    where colorIntensity = (fromIntegral $ shade point) * 10
 
 waitFor :: Window -> Curses ()
 waitFor w = loop $ Position 0 0 50 where
