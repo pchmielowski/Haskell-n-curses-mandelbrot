@@ -19,27 +19,26 @@ color point = iteration (0 :+ 0) point 0
 scale :: Fractional a => a -> a
 scale n = n / 200
 
-data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
+data Point = Point { x :: Integer, y :: Integer, shade :: Integer }
 
 scaled n position zoom = ((fromIntegral (n - position)) / (fromIntegral zoom))
 
-isShaded :: Integer -> Integer -> Position -> Bool
-isShaded x y position = intensity >= max_iterations
+intensity :: Integer -> Integer -> Position -> Integer
+intensity x y position = color $ real :+ imag
     where 
-        intensity = color $ real :+ imag
         real = transform x posX
         imag = transform y posY
         transform n delta = (scaled n (delta position) $ zoom position)
 
 point :: Integer -> Integer -> Position -> Point
-point x y position = Point x y (isShaded x y position)
+point x y position = Point x y (intensity x y position)
 
 figure position = concat $ map (\x -> map (\y -> point x y $ position) [0..100]) [0..50]
 
 drawPoint :: Point -> Update ()
 drawPoint p = do
     moveCursor (x p) (y p)
-    drawString (if shaded p then "#" else " ")
+    drawString " "
 
 main :: IO ()
 main = runCurses $ do
@@ -62,7 +61,7 @@ toUp position = position { posX = (posX position) - positionDelta }
 
 drawColorPoint :: Point -> Window -> Curses ()
 drawColorPoint point win = do 
-    color <- newColorID ColorRed ColorBlue 1    
+    color <- newColorID ColorRed (Color $ fromIntegral $ shade point) (fromIntegral $ shade point) 
     updateWindow win $ do
         setColor color
         drawPoint point
