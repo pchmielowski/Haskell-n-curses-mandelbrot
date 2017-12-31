@@ -1,9 +1,34 @@
 import UI.NCurses
+import Data.Complex
+
+max_iterations :: Integer
+max_iterations = 100
+
+iteration :: RealFloat a => Complex a -> Complex a -> Integer -> Integer
+iteration z c i 
+  | i > max_iterations = max_iterations
+  | diverge z = i
+  | otherwise = iteration ((z**2) + c) c (i + 1)
+
+diverge :: RealFloat a => Complex a -> Bool
+diverge z = magnitude z > 2.0
+
+color :: RealFloat a => Complex a -> Integer
+color point = iteration (0 :+ 0) point 0
+
+scale :: Fractional a => a -> a
+scale n = n / 200
+
+points :: [Double]
+points = map scale [-500..500]
 
 data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 
+isShaded :: Integer -> Integer -> Bool
+isShaded x y = (color (((fromIntegral x) / 100) :+ ((fromIntegral y) / 100))) >= max_iterations
+
 point :: Integer -> Integer -> Point
-point x y = Point x y ((x + y) > 100)
+point x y = Point x y (isShaded x y)
 
 figure = concat $ map (\x -> map (\y -> point x y) [0..100]) [0..50]
 
