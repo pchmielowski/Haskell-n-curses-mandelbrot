@@ -24,15 +24,15 @@ points = map scale [-500..500]
 
 data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 
-scaled n zoom = ((fromIntegral n) / (fromIntegral zoom))
+scaled n position = ((fromIntegral (n + (posX position))) / (fromIntegral $ zoom position))
 
-isShaded :: Integer -> Integer -> Integer -> Bool
-isShaded x y zoom = (color ((scaled x zoom) :+ (scaled y zoom))) >= max_iterations
+isShaded :: Integer -> Integer -> Position -> Bool
+isShaded x y position = (color ((scaled x position) :+ (scaled y position))) >= max_iterations
 
-point :: Integer -> Integer -> Integer -> Point
-point x y zoom = Point x y (isShaded x y zoom)
+point :: Integer -> Integer -> Position -> Point
+point x y position = Point x y (isShaded x y position)
 
-figure zoom = concat $ map (\x -> map (\y -> point x y zoom) [0..100]) [0..50]
+figure position = concat $ map (\x -> map (\y -> point x y $ position) [0..100]) [0..50]
 
 drawPoint :: Point -> Update ()
 drawPoint p = do
@@ -45,20 +45,24 @@ main = runCurses $ do
     w <- defaultWindow
     waitFor w
 
-data Position = Position { zoom :: Integer }
+data Position = Position { posX :: Integer, zoom :: Integer }
+
 changeScale position delta = position { zoom = (zoom position) + delta }
 scaleUp position = changeScale position 10
 scaleDown position = changeScale position (-10)
 
+toRight position = position { posX = (posX position) + 1 }
+
 waitFor :: Window -> Curses ()
-waitFor w = loop $ Position 50 where
+waitFor w = loop $ Position 0 50 where
     loop position = do
         updateWindow w $ do
-            mapM_ drawPoint $ figure $ zoom position
+            mapM_ drawPoint $ figure $ position
         render
         ev <- getEvent w Nothing
         case ev of
             Nothing -> loop position
+            Just (EventSpecialKey KeyRightArrow) -> loop $ toRight position 
             Just (EventCharacter '+') -> loop $ scaleUp position
             Just (EventCharacter '-') -> loop $ scaleDown position
             Just ev' -> if (ev' == EventCharacter 'q') then return () else loop position
