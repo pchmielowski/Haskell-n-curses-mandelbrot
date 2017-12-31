@@ -47,12 +47,16 @@ main = runCurses $ do
 
 data Position = Position { posX :: Integer, posY :: Integer, zoom :: Integer }
 
+zoomDelta = 20
 changeScale position delta = position { zoom = (zoom position) + delta }
-scaleUp position = changeScale position 10
-scaleDown position = changeScale position (-10)
+scaleUp position = changeScale position zoomDelta
+scaleDown position = changeScale position (-zoomDelta)
 
-toRight position = position { posY = (posY position) + 1 }
-toDown position = position { posX = (posX position) + 1 }
+positionDelta = 20
+toRight position = position { posY = (posY position) + positionDelta }
+toDown position = position { posX = (posX position) + positionDelta }
+toLeft position = position { posY = (posY position) - positionDelta }
+toUp position = position { posX = (posX position) - positionDelta }
 
 waitFor :: Window -> Curses ()
 waitFor w = loop $ Position 0 0 50 where
@@ -65,6 +69,8 @@ waitFor w = loop $ Position 0 0 50 where
             Nothing -> loop position
             Just (EventSpecialKey KeyRightArrow) -> loop $ toRight position 
             Just (EventSpecialKey KeyDownArrow) -> loop $ toDown position 
+            Just (EventSpecialKey KeyLeftArrow) -> loop $ toLeft position 
+            Just (EventSpecialKey KeyUpArrow) -> loop $ toUp position 
             Just (EventCharacter '+') -> loop $ scaleUp position
             Just (EventCharacter '-') -> loop $ scaleDown position
             Just ev' -> if (ev' == EventCharacter 'q') then return () else loop position
