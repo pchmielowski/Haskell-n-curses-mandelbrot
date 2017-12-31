@@ -24,15 +24,15 @@ points = map scale [-500..500]
 
 data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 
-scaled n = ((fromIntegral n) / 50)
+scaled n zoom = ((fromIntegral n) / (fromIntegral zoom))
 
-isShaded :: Integer -> Integer -> Bool
-isShaded x y = (color ((scaled x) :+ (scaled y))) >= max_iterations
+isShaded :: Integer -> Integer -> Integer -> Bool
+isShaded x y zoom = (color ((scaled x zoom) :+ (scaled y zoom))) >= max_iterations
 
-point :: Integer -> Integer -> Point
-point x y = Point x y (isShaded x y)
+point :: Integer -> Integer -> Integer -> Point
+point x y zoom = Point x y (isShaded x y zoom)
 
-figure = concat $ map (\x -> map (\y -> point x y) [0..100]) [0..50]
+figure zoom = concat $ map (\x -> map (\y -> point x y zoom) [0..100]) [0..50]
 
 drawPoint :: Point -> Update ()
 drawPoint p = do
@@ -42,20 +42,20 @@ drawPoint p = do
 main :: IO ()
 main = runCurses $ do
     setEcho False
-    color <- newColorID ColorWhite ColorBlack 1
     w <- defaultWindow
-    updateWindow w $ do
-        setColor color
-        mapM_ drawPoint figure
-    render
     waitFor w
 
+data Position = Position { zoom :: Integer }
+
 waitFor :: Window -> Curses ()
-waitFor w = loop where
-    loop = do
+waitFor w = loop 50 where
+    loop zoom = do
+        updateWindow w $ do
+            mapM_ drawPoint $ figure zoom
+        render
         ev <- getEvent w Nothing
         case ev of
-            Nothing -> loop
-            Just (EventCharacter '+') -> return ()
-            Just (EventCharacter '-') -> return ()
-            Just ev' -> if (ev' == EventCharacter 'q') then return () else loop
+            Nothing -> loop zoom
+            Just (EventCharacter '+') -> loop $ zoom + 10
+            Just (EventCharacter '-') -> loop $ zoom - 10
+            Just ev' -> if (ev' == EventCharacter 'q') then return () else loop zoom
