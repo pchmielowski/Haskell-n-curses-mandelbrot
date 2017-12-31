@@ -48,12 +48,14 @@ main = runCurses $ do
         setColor color
         mapM_ drawPoint figure
     render
-    waitFor w (\ev -> ev == EventCharacter 'q' || ev == EventCharacter 'Q')
+    waitFor w
 
-waitFor :: Window -> (Event -> Bool) -> Curses ()
-waitFor w p = loop where
+waitFor :: Window -> Curses ()
+waitFor w = loop where
     loop = do
         ev <- getEvent w Nothing
         case ev of
             Nothing -> loop
-            Just ev' -> if p ev' then return () else loop
+            Just (EventCharacter '+') -> return ()
+            Just (EventCharacter '-') -> return ()
+            Just ev' -> if (ev' == EventCharacter 'q') then return () else loop
