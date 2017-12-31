@@ -7,7 +7,7 @@ dot p = do
     moveCursor (x p) (y p)
     drawString " "
 
-figure = map (\y -> Point 0 y) $ filter (\n -> n `mod` 3 /= 0) [0..100]
+figure = concat $ map (\x -> map (\y -> Point x y) [0..100]) [0..50]
 
 main :: IO ()
 main = runCurses $ do
