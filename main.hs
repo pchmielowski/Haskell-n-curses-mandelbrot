@@ -1,16 +1,16 @@
 import UI.NCurses
 
-data Point = Point { x :: Integer, y :: Integer, color :: Integer }
+data Point = Point { x :: Integer, y :: Integer, shaded :: Bool }
 
 point :: Integer -> Integer -> Point
-point x y = Point x y (x + y)
+point x y = Point x y ((x + y) > 100)
 
 figure = concat $ map (\x -> map (\y -> point x y) [0..100]) [0..50]
 
 drawPoint :: Point -> Update ()
 drawPoint p = do
     moveCursor (x p) (y p)
-    drawString $ show $ color p
+    drawString (if shaded p then "#" else " ")
 
 main :: IO ()
 main = runCurses $ do
