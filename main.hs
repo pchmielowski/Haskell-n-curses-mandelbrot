@@ -1,22 +1,25 @@
 import UI.NCurses
 
-data Point = Point { x :: Integer, y :: Integer }
+data Point = Point { x :: Integer, y :: Integer, color :: Integer }
 
-dot :: Point -> Update ()
-dot p = do
+point :: Integer -> Integer -> Point
+point x y = Point x y (x + y)
+
+figure = concat $ map (\x -> map (\y -> point x y) [0..100]) [0..50]
+
+-- drawPoint :: Point -> ColorID -> Update ()
+drawPoint p = do
     moveCursor (x p) (y p)
-    drawString " "
-
-figure = concat $ map (\x -> map (\y -> Point x y) [0..100]) [0..50]
+    drawString $ show $ color p
 
 main :: IO ()
 main = runCurses $ do
     setEcho False
-    color <- newColorID ColorWhite ColorWhite 1
+    color <- newColorID ColorWhite ColorBlack 1
     w <- defaultWindow
     updateWindow w $ do
         setColor color
-        mapM_ dot figure
+        mapM_ drawPoint figure
     render
     waitFor w (\ev -> ev == EventCharacter 'q' || ev == EventCharacter 'Q')
 
