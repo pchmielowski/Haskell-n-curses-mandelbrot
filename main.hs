@@ -1,15 +1,13 @@
 import UI.NCurses
 
-hash :: Integer -> Integer -> Update ()
-hash x y = do
-    moveCursor x y
-    drawString "#"
+data Point = Point { x :: Integer, y :: Integer }
 
-dot y = do
-    moveCursor 0 y
+dot :: Point -> Update ()
+dot p = do
+    moveCursor (x p) (y p)
     drawString " "
 
-figure = filter (\n -> n `mod` 3 /= 0) [0..100]
+figure = map (\y -> Point 0 y) $ filter (\n -> n `mod` 3 /= 0) [0..100]
 
 main :: IO ()
 main = runCurses $ do
