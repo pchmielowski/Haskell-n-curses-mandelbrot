@@ -1,23 +1,24 @@
 import UI.NCurses
 
-hash = do
-    -- setColor $ newColorID ColorRed ColorBlue 0
-    moveCursor 0 0
+hash :: Integer -> Integer -> Update ()
+hash x y = do
+    moveCursor x y
     drawString "#"
+
+dot y = do
+    moveCursor 0 y
+    drawString " "
+
+figure = filter (\n -> n `mod` 3 /= 0) [0..100]
 
 main :: IO ()
 main = runCurses $ do
     setEcho False
-    color <- newColorID ColorRed ColorBlue 1
+    color <- newColorID ColorWhite ColorWhite 1
     w <- defaultWindow
     updateWindow w $ do
         setColor color
-        hash
-        moveCursor 1 10
-        drawString "Hello world!"
-        moveCursor 3 10
-        drawString "(press q to quit)"
-        moveCursor 0 0
+        mapM_ dot figure
     render
     waitFor w (\ev -> ev == EventCharacter 'q' || ev == EventCharacter 'Q')
 
