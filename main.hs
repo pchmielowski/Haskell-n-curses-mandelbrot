@@ -33,7 +33,7 @@ intensity x y position = color $ real :+ imag
 point :: Integer -> Integer -> Position -> Point
 point x y position = Point x y (intensity x y position)
 
-figure position = concat $ map (\x -> map (\y -> point x y $ position) [0..100]) [0..50]
+figure position width height = concat $ map (\x -> map (\y -> point x y $ position) [0..height-1]) [0..width-2]
 
 drawPoint :: Point -> Update ()
 drawPoint p = do
@@ -64,14 +64,17 @@ drawColorPoint point win = do
     defineColor (Color $ fromIntegral $ shade point) colorIntensity colorIntensity colorIntensity
     color <- newColorID ColorRed (Color $ fromIntegral $ shade point) (fromIntegral $ shade point)
     updateWindow win $ do
+        (width, height) <- windowSize
         setColor color
         drawPoint point
     where colorIntensity = (fromIntegral $ shade point) * 10
 
+-- TODO: rename to mainLoop or sth
 waitFor :: Window -> Curses ()
 waitFor w = loop $ Position 0 0 50 where
     loop position = do
-        mapM_ (\p -> drawColorPoint p w) $ figure $ position
+        (width, height) <- updateWindow w windowSize
+        mapM_ (\p -> drawColorPoint p w) $ figure position width height
         render
         ev <- getEvent w Nothing
         case ev of
