@@ -21,6 +21,7 @@ scale n = n / 200
 
 data Point = Point { x :: Integer, y :: Integer, shade :: Integer }
 
+scaled :: (Fractional a, Integral a2, Integral a1) => a2 -> a2 -> a1 -> a
 scaled n position zoom = ((fromIntegral (n - position)) / (fromIntegral zoom))
 
 intensity :: Integer -> Integer -> Position -> Integer
@@ -34,6 +35,7 @@ point :: Integer -> Integer -> Position -> Point
 point x y position = Point x y (intensity x y position)
 
 -- TODO: width and height are replaced
+figure :: Position -> Integer -> Integer -> [Point]
 figure position width height = concat $ map (\x -> map (\y -> point x y $ position) [0..height-1]) [0..width-2]
 
 drawPoint :: Point -> Update ()
@@ -50,6 +52,7 @@ main = runCurses $ do
 data Position = Position { posX :: Integer, posY :: Integer, zoom :: Integer }
 
 zoomDelta = 20
+changeScale :: Position -> Integer -> Position
 changeScale position delta = position { zoom = (zoom position) + delta }
 scaleUp position = changeScale position zoomDelta
 scaleDown position = changeScale position (-zoomDelta)
