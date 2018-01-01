@@ -33,6 +33,7 @@ intensity x y position = color $ real :+ imag
 point :: Integer -> Integer -> Position -> Point
 point x y position = Point x y (intensity x y position)
 
+-- TODO: width and height are replaced
 figure position width height = concat $ map (\x -> map (\y -> point x y $ position) [0..height-1]) [0..width-2]
 
 drawPoint :: Point -> Update ()
